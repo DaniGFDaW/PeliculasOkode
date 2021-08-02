@@ -1,0 +1,5 @@
+package com.app.peliculas.controllers;
+
+public class PeliculaController {
+
+}

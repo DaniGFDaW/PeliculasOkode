@@ -1,0 +1,5 @@
+package com.app.peliculasOkode.models;
+
+public class PeliculaDTO {
+
+}
