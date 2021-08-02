@@ -28,8 +28,7 @@ public class PeliculaController {
     @RequestMapping("/{id}")
     @Cacheable("peliculas")
     public Pelicula getMovieInfo(@PathVariable("id") int id) throws IOException {
-    	
-    	//Prueba Cache
+
         System.out.println(String.format("Haciendo llamada para pelicula %s", id));
         
         WebClient client = WebClient.builder()
