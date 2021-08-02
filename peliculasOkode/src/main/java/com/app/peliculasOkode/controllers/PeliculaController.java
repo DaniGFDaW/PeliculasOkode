@@ -1,48 +1,51 @@
 package com.app.peliculasOkode.controllers;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 
+import com.app.peliculasOkode.models.Pelicula;
+import java.io.IOException;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
 
-@RestController 
-@CrossOrigin
-@RequestMapping("/peliculas")
+@RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*", maxAge = 3600)
+@RequestMapping("/pelicula")
 public class PeliculaController {
-	
-	final String urlApi = "https://api.themoviedb.org/3/search/movie?api_key=a163e83c34632b051d44c054f63c73e9&query=" ;
-	
 
-	@RequestMapping("/{titulo}")
-	    public String getMovieInfo(@PathVariable("titulo") String titulo) throws IOException {
-	
-		//Inicio Conexion
-		URL url = new URL(urlApi + titulo);
-		URLConnection conexion = url.openConnection();
-		
-		//Lectura Respuesta 
-		
-		Reader respuesta = new InputStreamReader(conexion.getInputStream());
-		BufferedReader br = new BufferedReader(respuesta);
-		
-		String datos;
-		String infoPelicula = null;
-		
-		while((datos = br.readLine()) != null) {
-			
-		infoPelicula = datos;
-		}
-		
-	return infoPelicula;
+    @Autowired
+    private Environment env;
 
+    @RequestMapping("/{id}")
+    @Cacheable("peliculas")
+    public Pelicula getMovieInfo(@PathVariable("id") int id) throws IOException {
+
+        System.out.println(String.format("Haciendo llamada para pelicula %s", id));
+        
+        WebClient client = WebClient.builder()
+                .baseUrl(env.getProperty("api_url"))
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+
+        Pelicula response = client.get()
+                .uri(uriBuilder -> uriBuilder
+                .path("/movie/" + id)
+                .queryParam("api_key", env.getProperty("key"))
+                .queryParam("query", id)
+                .build())
+                    .exchangeToMono(r -> r.bodyToMono(Pelicula.class))
+                    .block();        
+
+        return response;
+
+    }
 }
-}
-

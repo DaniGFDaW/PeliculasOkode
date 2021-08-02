@@ -1,0 +1,17 @@
+
+package com.app.peliculasOkode.models;
+
+import java.lang.reflect.Array;
+
+import javax.swing.Icon;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+
+public class Pelicula {
+    public String original_title;
+    public Icon imagen;
+    public String overview;
+    public int popularity;
+}
